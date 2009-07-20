@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+	<key>items</key>
+	<array>
+	  <dict>
+		<key>cell</key>
+		<string>PSSwitchCell</string>
+		<key>default</key>
+		<true/>
+		<key>defaults</key>
+		<string>cx.ath.jakewalk.TodoPlugin</string>
+		<key>key</key>
+		<string>Enabled</string>
+		<key>label</key>
+		<string>Enabled</string>
+	  </dict>
+	  <dict>
+		<key>cell</key>
+		<string>PSEditTextCell</string>
+		<key>default</key>
+		<integer>3</integer>
+		<key>defaults</key>
+		<string>cx.ath.jakewalk.TodoPlugin</string>
+		<key>key</key>
+		<string>Limit</string>
+		<key>label</key>
+		<string>Limit</string>
+	  </dict>
+	  <dict>
+		<key>cell</key>
+		<string>PSEditTextCell</string>
+		<key>defaults</key>
+		<string>cx.ath.jakewalk.TodoPlugin</string>
+		<key>key</key>
+		<string>databasePath</string>
+		<key>label</key>
+		<string>Path</string>
+	  </dict>
+	  <dict>
+		<key>cell</key>
+		<string>PSLinkListCell</string>
+		<key>default</key>
+		<string>inbox</string>
+		<key>defaults</key>
+		<string>cx.ath.jakewalk.TodoPlugin</string>
+		<key>detail</key>
+		<string>PSListItemsController</string>
+		<key>key</key>
+		<string>List</string>
+		<key>label</key>
+		<string>List</string>
+		<key>validTitles</key>
+		<array>
+		  <string>Inbox</string>
+		  <string>All categories</string>
+		  <string>Focus List</string>
+		  <string>Custom List</string>		  
+		</array>
+		<key>validValues</key>
+		<array>
+		  <string>inbox</string>
+		  <string>all</string>
+		  <string>focus</string>
+		  <string>custom</string>		  
+		</array>
+	  </dict>
+	  <dict>
+		<key>cell</key>
+		<string>PSEditTextCell</string>
+		<key>default</key>
+		<string>Home</string>
+		<key>defaults</key>
+		<string>cx.ath.jakewalk.TodoPlugin</string>
+		<key>key</key>
+		<string>customList</string>
+		<key>label</key>
+		<string>Custom list</string>
+	  </dict>	  	  
+	</array>
+  </dict>
+</plist>
