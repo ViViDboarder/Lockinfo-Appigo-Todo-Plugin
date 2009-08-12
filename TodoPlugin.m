@@ -63,7 +63,7 @@
   
   GSLog(@"databasePath: %@", databasePath);  
   
-  if(databasePath == nil || [fm fileExistsAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:@"Documents/Todo_v4.sqlitedb"]] == NO) {
+  if(databasePath == nil || [fm fileExistsAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:@"Documents/Todo_v5.sqlitedb"]] == NO) {
 	GSLog(@"We do not have the database path, going to search for it.");
 
 	NSString* appPath = @"/User/Applications/";
@@ -186,7 +186,7 @@
 
   sqlite3 *database = NULL;
 
-  if(sqlite3_open([[[preferences objectForKey:@"databasePath"] stringByAppendingString:@"Documents/Todo_v4.sqlitedb"] UTF8String], &database) == SQLITE_OK) {
+  if(sqlite3_open([[[preferences objectForKey:@"databasePath"] stringByAppendingString:@"Documents/Todo_v5.sqlitedb"] UTF8String], &database) == SQLITE_OK) {
 
 	/*
 	  NSString *sql = [NSString stringWithFormat:@"%@ limit %i;",
@@ -253,7 +253,7 @@
 
   /* Get the todo database timestamp */
   NSDictionary *dataFileAttributes = [[NSFileManager defaultManager] 
-								   fileAttributesAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:@"Documents/Todo_v4.sqlitedb"]
+								   fileAttributesAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:@"Documents/Todo_v5.sqlitedb"]
 								   traverseLink:YES];
 
   NSDate* lastDataModified = [dataFileAttributes objectForKey:NSFileModificationDate];
