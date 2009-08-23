@@ -58,7 +58,7 @@
   preferences = [[NSMutableDictionary alloc] initWithContentsOfFile:preferencesPath];
 
   //Uncomment for debugging
-  freopen("/tmp/logfile.log", "a", stderr);
+  //freopen("/tmp/logfile.log", "a", stderr);
  
   useLiteVersion = [[preferences objectForKey: @"Lite"] boolValue];
   
