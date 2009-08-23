@@ -31,7 +31,11 @@
   NSDictionary* sqlDict;
   NSString* preferencesPath;
   NSString* todoSettingsPath;
-  
+  NSString* todoSettingsFile;  
+  NSString* databaseFile;
+  NSString* applicationName;
+  BOOL useLiteVersion;
+     
   NSAutoreleasePool* pool;
 }
 
@@ -55,6 +59,20 @@
 
   //Uncomment for debugging
   freopen("/tmp/logfile.log", "a", stderr);
+ 
+  useLiteVersion = [[preferences objectForKey: @"Lite"] boolValue];
+  
+  //Decide if the plugin points to the full or the lite version
+  if (useLiteVersion) {
+  	  databaseFile = @"Documents/TodoLite_v5.sqlitedb";
+	  applicationName = @"Todo Lite.app";
+      todoSettingsFile = @"Library/Preferences/com.appigo.todolite.plist";    
+  }
+  else {
+  	  databaseFile = @"Documents/Todo_v5.sqlitedb";
+	  applicationName = @"Todo.app";
+      todoSettingsFile = @"Library/Preferences/com.appigo.todo.plist";  	
+  }
 
   NSFileManager* fm = [NSFileManager defaultManager];
   
@@ -63,7 +81,7 @@
   
   GSLog(@"databasePath: %@", databasePath);  
   
-  if(databasePath == nil || [fm fileExistsAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:@"Documents/Todo_v5.sqlitedb"]] == NO) {
+  if(databasePath == nil || [fm fileExistsAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:databaseFile]] == NO) {
 	GSLog(@"We do not have the database path, going to search for it.");
 
 	NSString* appPath = @"/User/Applications/";
@@ -72,7 +90,7 @@
 	bool cont = true;
 	NSString* uuid = nil;
 	while(cont && (uuid = [e nextObject])) {
-	  if([[fm directoryContentsAtPath:[appPath stringByAppendingString:uuid]] containsObject:@"Todo.app"]) {
+	  if([[fm directoryContentsAtPath:[appPath stringByAppendingString:uuid]] containsObject:applicationName]) {
 		[preferences setObject:[NSString stringWithFormat:@"/User/Applications/%@/", uuid] forKey:@"databasePath"];
 		[preferences writeToFile:preferencesPath atomically:YES];
 		cont = false;
@@ -98,7 +116,7 @@
   /* Completed tasks shall never be shown on the lockscreen, other focus list settings are respected */
   
   /* Todo Settings (for Focus list) */
-  todoSettingsPath = [[preferences objectForKey:@"databasePath"] stringByAppendingString:@"Library/Preferences/com.appigo.todo.plist"];
+  todoSettingsPath = [[preferences objectForKey:@"databasePath"] stringByAppendingString:todoSettingsFile];
   todoSettings = [[NSMutableDictionary alloc] initWithContentsOfFile:todoSettingsPath];
 
   NSString *focusSql = @"select name,due_date,flags from tasks where deleted = 0 and completion_date < 0";
@@ -186,7 +204,7 @@
 
   sqlite3 *database = NULL;
 
-  if(sqlite3_open([[[preferences objectForKey:@"databasePath"] stringByAppendingString:@"Documents/Todo_v5.sqlitedb"] UTF8String], &database) == SQLITE_OK) {
+  if(sqlite3_open([[[preferences objectForKey:@"databasePath"] stringByAppendingString:databaseFile] UTF8String], &database) == SQLITE_OK) {
 
 	/*
 	  NSString *sql = [NSString stringWithFormat:@"%@ limit %i;",
@@ -253,7 +271,7 @@
 
   /* Get the todo database timestamp */
   NSDictionary *dataFileAttributes = [[NSFileManager defaultManager] 
-								   fileAttributesAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:@"Documents/Todo_v5.sqlitedb"]
+								   fileAttributesAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:databaseFile]
 								   traverseLink:YES];
 
   NSDate* lastDataModified = [dataFileAttributes objectForKey:NSFileModificationDate];
@@ -263,7 +281,7 @@
 
   /* Get the todo settings timestamp */  
   NSDictionary *settingsFileAttributes = [[NSFileManager defaultManager] 
-								   fileAttributesAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:@"Library/Preferences/com.appigo.todo.plist"]
+								   fileAttributesAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:todoSettingsFile]
 								   traverseLink:YES];
 
   NSDate* lastSettingsModified = [settingsFileAttributes objectForKey:NSFileModificationDate];

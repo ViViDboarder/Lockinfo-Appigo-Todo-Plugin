@@ -30,6 +30,18 @@
 	  </dict>
 	  <dict>
 		<key>cell</key>
+		<string>PSSwitchCell</string>
+		<key>default</key>
+		<false/>
+		<key>defaults</key>
+		<string>cx.ath.jakewalk.TodoPlugin</string>
+		<key>key</key>
+		<string>Lite</string>
+		<key>label</key>
+		<string>Use Todo-Lite*</string>
+	  </dict>	  
+	  <dict>
+		<key>cell</key>
 		<string>PSEditTextCell</string>
 		<key>defaults</key>
 		<string>cx.ath.jakewalk.TodoPlugin</string>
@@ -77,7 +89,13 @@
 		<string>customList</string>
 		<key>label</key>
 		<string>Custom list</string>
-	  </dict>	  	  
+	  </dict>
+	  <dict>
+		<key>cell</key>
+		<string>PSTitleValueCell</string>
+		<key>label</key>
+		<string>* = needs Respring</string>
+	  </dict>	   	  
 	</array>
   </dict>
 </plist>
