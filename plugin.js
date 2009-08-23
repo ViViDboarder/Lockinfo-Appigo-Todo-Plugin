@@ -14,7 +14,7 @@ TodoPlugin.prototype.updateView = function(todo) {
 	for (i = 0; i < todos.length; i++) {
 	  html += "<li class='summary"+(i == 0 ? " firstItem" : "")+(i == todos.length - 1 ? " lastItem" : "")+"'>"+todos[i].text+"</li>";
 
-	  if(todos[i].due) {
+	  if(todos[i].due < 64092211200) {
 		var date = new Date();
 		date.setTime((parseInt(todos[i].due)) * 1000);
 
