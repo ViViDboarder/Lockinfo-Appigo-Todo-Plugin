@@ -1,4 +1,4 @@
-SDKVER=3.0
+SDKVER=2.0
 SDK=/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS$(SDKVER).sdk
 
 CC=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/arm-apple-darwin9-gcc-4.2.1
@@ -8,13 +8,13 @@ LD=$(CC)
 
 LDFLAGS += -framework CoreFoundation
 LDFLAGS += -framework Foundation
-//LDFLAGS += -framework UIKit
-//LDFLAGS += -framework CoreGraphics
+LDFLAGS += -framework UIKit
+LDFLAGS += -framework CoreGraphics
 //LDFLAGS += -framework AddressBookUI
 //LDFLAGS += -framework AddressBook
 //LDFLAGS += -framework QuartzCore
-//LDFLAGS += -framework GraphicsServices
-//LDFLAGS += -framework CoreSurface
+LDFLAGS += -framework GraphicsServices
+LDFLAGS += -framework CoreSurface
 //LDFLAGS += -framework CoreAudio
 //LDFLAGS += -framework Celestial
 //LDFLAGS += -framework AudioToolbox
@@ -38,6 +38,7 @@ LDFLAGS += -bundle
 
 
 CFLAGS += -I"/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/gcc/arm-apple-darwin9/4.2.1/include/"
+CFLAGS += -I"$(SDK)/usr/include"
 CFLAGS += -I"$(SDK)/usr/include"
 CFLAGS += -I"/Developer/Platforms/iPhoneOS.platform/Developer/usr/include/"
 CFLAGS += -I"/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator$(SDKVER).sdk/usr/include"
@@ -79,6 +80,7 @@ install: TodoPlugin $(BUNDLE) $(THEME)
 	cp Preferences.plist $(BUNDLE)/
 	export CODESIGN_ALLOCATE=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/codesign_allocate; ./ldid_intel -S TodoPlugin
 	cp TodoPlugin $(BUNDLE)/
+	cp icon.png $(BUNDLE)/section_icon.png
 
 	cp plugin.js $(THEME)/Bundles/$(ID)/
 	cp plugin.css $(THEME)/Bundles/$(ID)/
@@ -86,7 +88,7 @@ install: TodoPlugin $(BUNDLE) $(THEME)
 
 deviceinstall: install
 	scp -r $(BUNDLE) root@$(IP):/Library/LockInfo/Plugins/
-	scp -r $(THEME) root@$(IP):/Library/Themes/
+	#scp -r $(THEME) root@$(IP):/Library/Themes/
 
 clean: 
 	rm *.o TodoPlugin $(BUNDLE)/*
