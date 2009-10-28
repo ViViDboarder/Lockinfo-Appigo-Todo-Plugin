@@ -1,8 +1,9 @@
-#import <Foundation/Foundation.h>
+#import "Foundation/Foundation.h"
 #import <sqlite3.h>
 
 #import <UIKit/UIKit.h>
 #import <UIKit/UIApplication.h>
+#include "PluginDataSource.h"
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -15,6 +16,57 @@
 @optional
 // Called before the first call to 'data' and any time the settings are updated in the Settings app.
 - (void) setPreferences:(NSDictionary*) prefs;
+
+@end
+
+@interface TodoView : UIView
+
+@property (nonatomic, retain) NSArray* todos;
+
+@end
+
+@implementation TodoView
+
+@synthesize todos;
+
+-(void) drawRect:(struct CGRect) rect {
+	NSLog(@"LI:Todo: Rendering Items...");
+	int width = (rect.size.width / 1);
+	
+	for (int i = 0; i < self.todos.count; i++) {// TODO: Change && i < 3 to read max value from .plist
+		NSDictionary* todoItem = [self.todos objectAtIndex:i];
+		NSString* theText = [todoItem objectForKey:@"text"];
+		NSString* theDate = [todoItem objectForKey:@"due"];
+		NSString* theFlags = [todoItem objectForKey:@"flags"];
+		
+		NSString* str = [NSString stringWithFormat: @"%@", theText];
+		CGRect r = CGRectMake(rect.origin.x + 20, rect.origin.y + 4 + (i * 13) , width, 12);
+		[[UIColor whiteColor] set];
+		[str drawInRect:r withFont:[UIFont boldSystemFontOfSize:12] lineBreakMode:UILineBreakModeClip ];
+	}
+}
+
+@end
+
+@interface HeaderView : UIView
+
+@end
+
+@implementation HeaderView
+
+-(void) drawRect:(struct CGRect) rect {
+	NSLog(@"LI:Todo: Drawing header");
+	
+	//double scale = 1.0;
+	
+	// Get icon path and icon
+	// icon should be self.icon
+	//CGSize s = self.icon.size;
+	//s.width = s.width * scale;
+	//s.height = s.height * scale;
+	//[self.icon drawInRect:CGRectMake((rect.size.height / 2) - (s.width / 2), (rect.size.height / 2) - (s.height / 2), s.width, s.height)];
+
+}
 
 @end
 
@@ -79,7 +131,7 @@
   //Path to the Todo-Application (for example /User/Applications/AC624048-1944-4019-8581-407A502E19AC/)
   NSString* databasePath = [preferences objectForKey:@"databasePath"];
   
-  GSLog(@"databasePath: %@", databasePath);  
+  NSLog(@"LI:Todo: databasePath: %@", databasePath);  
   
   if(databasePath == nil || [fm fileExistsAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:databaseFile]] == NO) {
 	GSLog(@"We do not have the database path, going to search for it.");
@@ -94,7 +146,7 @@
 		[preferences setObject:[NSString stringWithFormat:@"/User/Applications/%@/", uuid] forKey:@"databasePath"];
 		[preferences writeToFile:preferencesPath atomically:YES];
 		cont = false;
-		GSLog(@"Found the path: %@", [preferences objectForKey:@"databasePath"]);
+		NSLog(@"LI:Todo: Found the path: %@", [preferences objectForKey:@"databasePath"]);
 	  }
 	}	
   }
@@ -105,9 +157,53 @@
 
   queryLimit = [[preferences valueForKey:@"Limit"] intValue];
 
-  GSLog(@"Initialized!");
+  NSLog(@"LI:Todo: Initialized!");
 
   return self;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+	return 1;
+}
+
+//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+//		
+//}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+	NSArray* todoCount = [lastData objectForKey:@"todos"];
+	// sets total shaded background to the height of all items
+	int width = 16 * todoCount.count;
+	// Possible memory leak... Check into this.
+	//[todoCount release];
+	return width;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+	
+	NSArray* todos = [lastData objectForKey:@"todos"];
+	
+	UITableViewCell *td = [tableView dequeueReusableCellWithIdentifier:@"TodoCell"];
+	
+	if (td == nil) {
+		td = [[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"TodoCell"];
+		td.backgroundColor = [UIColor clearColor];
+		
+		TodoView* tdv = [[[TodoView alloc] initWithFrame:CGRectMake(10, 0, 300, 16 * todos.count)] autorelease];
+		tdv.backgroundColor = [UIColor clearColor];
+		tdv.tag = 57;
+		[td.contentView addSubview:tdv];
+	}
+	TodoView* tdv = [td viewWithTag:57];
+	NSArray* todosCopy = [todos copy];
+	tdv.todos = todosCopy;
+	[todosCopy release];
+	NSLog(@"LI:Todo: Just updated the Todo View");
+	
+	//tdv.todos = todos;
+	
+	return td;
+
 }
 
 - (void) CreateSQLQueries {
@@ -125,12 +221,12 @@
   if ([todoSettings objectForKey:@"FocusListShowUndatedTasks"]){
   	  //Show tasks without due date
   	  focusSql = [focusSql stringByAppendingString:@" and due_date <= 64092211200"];
-	  GSLog(@"FocusListShowUndatedTasks: true");
+	  NSLog(@"LI:Todo: FocusListShowUndatedTasks: true");
   }
   else {
   	  //Hide tasks without due date
   	  focusSql = [focusSql stringByAppendingString:@" and due_date < 64092211200"];    
-  	  GSLog(@"FocusListShowUndatedTasks: false");
+  	  NSLog(@"LI:Todo: FocusListShowUndatedTasks: false");
   }
 
   /* List filter - don't show lists that are within the filter */
@@ -154,7 +250,7 @@
   focusSql = [focusSql stringByAppendingString:@" and priority <= %@"];
   focusSql = [NSString stringWithFormat:focusSql, [todoSettings objectForKey:@"FilterPriorityTasksSetting"]];  
  
-  GSLog(@"focusSql: %@", focusSql);
+  NSLog(@"LI:Todo: focusSql: %@", focusSql);
 
   /* Due todos from the inbox */
   NSString *inboxSql = @"select name,due_date,tasks.flags from tasks where completion_date < 0 and list = 0 and deleted = 0";
@@ -219,7 +315,7 @@
 	// Setup the SQL Statement and compile it for faster access
 	sqlite3_stmt *compiledStatement;
 	if(sqlite3_prepare_v2(database, [sql UTF8String], -1, &compiledStatement, NULL) == SQLITE_OK) {
-	  GSLog(@"Database checkout worked!");
+	  NSLog(@"LI:Todo: Database checkout worked!");
 
 	  // Loop through the results and add them to the feeds array
 	  while(sqlite3_step(compiledStatement) == SQLITE_ROW) {
@@ -261,7 +357,7 @@
   
   //[pool drain];
 
-  GSLog(@"Successfully read from database.");
+  NSLog(@"LI:Todo: Successfully read from database.");
 
   return dict;
 }
@@ -276,8 +372,8 @@
 
   NSDate* lastDataModified = [dataFileAttributes objectForKey:NSFileModificationDate];
 
-  GSLog(@"lastDataModified: %@", lastDataModified);  
-  GSLog(@"lastDataCheckout: %@", lastDataCheckout);  
+  NSLog(@"LI:Todo: lastDataModified: %@", lastDataModified);  
+  NSLog(@"LI:Todo: lastDataCheckout: %@", lastDataCheckout);  
 
   /* Get the todo settings timestamp */  
   NSDictionary *settingsFileAttributes = [[NSFileManager defaultManager] 
@@ -286,13 +382,13 @@
 
   NSDate* lastSettingsModified = [settingsFileAttributes objectForKey:NSFileModificationDate];
 
-  GSLog(@"lastSettingsModified: %@", lastSettingsModified);  
-  GSLog(@"lastSettingsCheckout: %@", lastSettingsCheckout);    
+  NSLog(@"LI:Todo: lastSettingsModified: %@", lastSettingsModified);  
+  NSLog(@"LI:Todo: lastSettingsCheckout: %@", lastSettingsCheckout);    
 
   if(lastDataCheckout == nil || lastSettingsCheckout == nil || lastData == nil ||
 	 [lastDataModified compare:lastDataCheckout] == NSOrderedDescending ||
 	 [lastSettingsModified compare:lastSettingsCheckout] == NSOrderedDescending) {
-	GSLog(@"We don't have the last time, data or todo-settings -> updating");
+	NSLog(@"LI:Todo: We don't have the last time, data or todo-settings -> updating");
 	
 	if([lastSettingsModified compare:lastSettingsCheckout] == NSOrderedDescending){
 		[self CreateSQLQueries];
@@ -312,9 +408,12 @@
 	  [lastSettingsCheckout release];
 	lastSettingsCheckout = [lastSettingsModified retain];
 
-	GSLog(@"Succesfully got new data");
+	NSLog(@"LI:Todo: Succesfully got new data");
+	
+
+	
   } else {
-	GSLog(@"No update necessary");
+	NSLog(@"LI:Todo: No update necessary");
   }
   
   [datapool drain];
@@ -334,7 +433,7 @@
 	lastData = nil;
   }
 
-  GSLog(@"PreferencesChanged");
+  NSLog(@"LI:Todo: PreferencesChanged");
 }
 
 @end
