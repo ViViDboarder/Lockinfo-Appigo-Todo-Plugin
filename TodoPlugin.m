@@ -21,14 +21,37 @@
 
 @interface TodoView : UIView
 
-@property (nonatomic, retain) NSArray* todos;
+//@property (nonatomic, retain) NSArray* todos;
+@property (nonatomic, retain) LITimeView time;
+@property (nonatomic, retain) UILabel* theText;
+@property (nonatomic, retain) UILabel* theDate;
+@property (nonatomic, retain) UILabel* theFlags;
 
 @end
 
 @implementation TodoView
 
-@synthesize todos;
+@synthesize time, theText, theDate, theFlags; //todos;
 
+- (id)initWithFrame:(CGRect)frame timeView:(LITimeView*) timeView {
+	self = [super initWithFrame:frame];
+	self.backgroundColor = [UIColor clearColor];
+	
+	self.time = timeView;
+	self.time.frame = CGRectMake(0, 0, 70, 18);
+	self.time.backgroundColor = [UIColor clearColor];
+
+	self.theText = [[UILabel alloc] init];
+	self.theText.frame = CGRect(85, 0, 225, 18);
+	self.theText.backgroundColor = [UIColor clearColor];
+
+	[self addSubview:self.time];
+	[self addSubview:self.theText];
+
+	return self;
+}
+
+/*** Part of OLD rendering style.  Left as reference to dict keys while writing new implementation
 -(void) drawRect:(struct CGRect) rect {
 	NSLog(@"LI:Todo: Rendering Items...");
 	int width = (rect.size.width / 1);
@@ -46,31 +69,12 @@
 	}
 }
 
-@end
-
-@interface HeaderView : UIView
+**/
 
 @end
 
-@implementation HeaderView
-
--(void) drawRect:(struct CGRect) rect {
-	NSLog(@"LI:Todo: Drawing header");
-	
-	//double scale = 1.0;
-	
-	// Get icon path and icon
-	// icon should be self.icon
-	//CGSize s = self.icon.size;
-	//s.width = s.width * scale;
-	//s.height = s.height * scale;
-	//[self.icon drawInRect:CGRectMake((rect.size.height / 2) - (s.width / 2), (rect.size.height / 2) - (s.height / 2), s.width, s.height)];
-
-}
-
-@end
-
-@interface TodoPlugin : NSObject <PluginDelegate> {
+// Try to create a property for Todos to get easier access
+@interface TodoPlugin : NSObject <LIPluginDataSource, UITableViewDataSource> {
   //The date when the todos where read the last time
   NSDate *lastDataCheckout;
   //The date when the todo settings where read the last time (necessary for focus list)
@@ -163,23 +167,12 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	return 1;
-}
-
-//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-//		
-//}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 	NSArray* todoCount = [lastData objectForKey:@"todos"];
-	// sets total shaded background to the height of all items
-	int width = 16 * todoCount.count;
-	// Possible memory leak... Check into this.
-	//[todoCount release];
-	return width;
+	return todoCount.count;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+
+- (UITableViewCell *)tableView:(LITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	NSArray* todos = [lastData objectForKey:@"todos"];
 	
@@ -189,14 +182,21 @@
 		td = [[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"TodoCell"];
 		td.backgroundColor = [UIColor clearColor];
 		
-		TodoView* tdv = [[[TodoView alloc] initWithFrame:CGRectMake(10, 0, 300, 16 * todos.count)] autorelease];
+		TodoView* tdv = [[[TodoView alloc] initWithFrame:CGRectMake(0, 0, 320, 35) timeView[tableView timeViewWithFrame:CGRectZero]] autorelease];
 		tdv.backgroundColor = [UIColor clearColor];
 		tdv.tag = 57;
 		[td.contentView addSubview:tdv];
 	}
 	TodoView* tdv = [td viewWithTag:57];
 	NSArray* todosCopy = [todos copy];
-	tdv.todos = todosCopy;
+	//tdv.todos = todosCopy;
+	if (todosCopy.count > indexPath.row) {
+		NSDictionary* elm = [todosCopy objectAtIndex:indexPath.row];
+		tdv.theText.text = [elem objectForKey:@"text"];
+		tdv.theDate.text = [elem objectForKey:@"due"];
+		tdv.theFlags.text = [elem objectForKey:@"flags"];
+	}
+
 	[todosCopy release];
 	NSLog(@"LI:Todo: Just updated the Todo View");
 	
