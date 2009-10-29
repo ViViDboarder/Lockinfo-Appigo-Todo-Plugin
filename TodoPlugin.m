@@ -56,24 +56,6 @@
 
     return self;
 }
-/** Commented out as reference
- -(void) drawRect:(struct CGRect) rect {
-	NSLog(@"LI:Todo: Rendering Items...");
-	int width = (rect.size.width / 1);
-	
-	for (int i = 0; i < self.todos.count; i++) {// TODO: Change && i < 3 to read max value from .plist
-		NSDictionary* todoItem = [self.todos objectAtIndex:i];
-		NSString* theText = [todoItem objectForKey:@"text"];
-		NSString* theDate = [todoItem objectForKey:@"due"];
-		NSString* theFlags = [todoItem objectForKey:@"flags"];
-		
-		NSString* str = [NSString stringWithFormat: @"%@", theText];
-		CGRect r = CGRectMake(rect.origin.x + 20, rect.origin.y + 4 + (i * 13) , width, 12);
-		[[UIColor whiteColor] set];
-		[str drawInRect:r withFont:[UIFont boldSystemFontOfSize:12] lineBreakMode:UILineBreakModeClip ];
-	}
-}
-**/
 
 @end
 
@@ -101,78 +83,11 @@
 
 @property (nonatomic, retain) NSArray* todoList;
 
-- (NSDictionary*) data;
 @end
 
 @implementation TodoPlugin
 
 @synthesize todoList;
-
-- (id)init {
-  self = [super init];
-
-  lastData = nil;
-  lastDataCheckout = nil;
-  lastSettingsCheckout = nil;
-
-  pool = [[NSAutoreleasePool alloc] init];
-  
-  //PluginSettings
-  preferencesPath = @"/User/Library/Preferences/cx.ath.jakewalk.TodoPlugin.plist";
-  preferences = [[NSMutableDictionary alloc] initWithContentsOfFile:preferencesPath];
-
-  //Uncomment for debugging
-  //freopen("/tmp/logfile.log", "a", stderr);
- 
-  useLiteVersion = [[preferences objectForKey: @"Lite"] boolValue];
-  
-  //Decide if the plugin points to the full or the lite version
-  if (useLiteVersion) {
-  	  databaseFile = @"Documents/TodoLite_v5.sqlitedb";
-	  applicationName = @"Todo Lite.app";
-      todoSettingsFile = @"Library/Preferences/com.appigo.todolite.plist";    
-  }
-  else {
-  	  databaseFile = @"Documents/Todo_v5.sqlitedb";
-	  applicationName = @"Todo.app";
-      todoSettingsFile = @"Library/Preferences/com.appigo.todo.plist";  	
-  }
-
-  NSFileManager* fm = [NSFileManager defaultManager];
-  
-  //Path to the Todo-Application (for example /User/Applications/AC624048-1944-4019-8581-407A502E19AC/)
-  NSString* databasePath = [preferences objectForKey:@"databasePath"];
-  
-  NSLog(@"LI:Todo: databasePath: %@", databasePath);  
-  
-  if(databasePath == nil || [fm fileExistsAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:databaseFile]] == NO) {
-	NSLog(@"LI:Todo: We do not have the database path, going to search for it.");
-
-	NSString* appPath = @"/User/Applications/";
-	NSArray* uuidDirs = [fm directoryContentsAtPath:appPath];
-	NSEnumerator *e = [uuidDirs objectEnumerator];
-	bool cont = true;
-	NSString* uuid = nil;
-	while(cont && (uuid = [e nextObject])) {
-	  if([[fm directoryContentsAtPath:[appPath stringByAppendingString:uuid]] containsObject:applicationName]) {
-		[preferences setObject:[NSString stringWithFormat:@"/User/Applications/%@/", uuid] forKey:@"databasePath"];
-		[preferences writeToFile:preferencesPath atomically:YES];
-		cont = false;
-		NSLog(@"LI:Todo: Found the path: %@", [preferences objectForKey:@"databasePath"]);
-	  }
-	}	
-  }
-
-  NSLog(@"LI:Todo: path: %@", [preferences objectForKey:@"databasePath"]);
-
-  [self CreateSQLQueries];
-
-  queryLimit = [[preferences valueForKey:@"Limit"] intValue];
-
-  NSLog(@"LI:Todo: Initialized!");
-
-  return self;
-}
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	return self.todoList.count;
@@ -180,48 +95,221 @@
 
 - (UITableViewCell *)tableView:(LITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
-	//NSArray* todos = [lastData objectForKey:@"todos"];
+	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"TodoCell"];
 	
-	UITableViewCell *td = [tableView dequeueReusableCellWithIdentifier:@"TodoCell"];
-	
-	if (td == nil) {
-		td = [[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"TodoCell"];
-		td.backgroundColor = [UIColor clearColor];
+	if (cell == nil) {
+		cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"TodoCell"] autorelease];
+		//cell.backgroundColor = [UIColor clearColor];
 		
-		TodoView* tdv = [[[TodoView alloc] initWithFrame:CGRectMake(0, 0, 320, 35) timeView:[tableView timeViewWithFrame:CGRectZero]] autorelease];
-		tdv.backgroundColor = [UIColor clearColor];
-		tdv.tag = 57;
-		[td.contentView addSubview:tdv];
+		TodoView* v = [[[TodoView alloc] initWithFrame:CGRectMake(0, 0, 320, 35) timeView:[tableView timeViewWithFrame:CGRectZero]] autorelease];
+		//v.backgroundColor = [UIColor clearColor];
+		v.tag = 57;
+		[cell.contentView addSubview:v];
 	}
 	
-	TodoView* tdv = [td viewWithTag:57];
-	[tableView setProperties:tdv.theText summary:YES];
-	[tableView setProperties:tdv.theFlags summary:NO];
+	TodoView* v = [cell.contentView viewWithTag:57];
+	[tableView setProperties:v.theText summary:YES];
+	[tableView setProperties:v.theFlags summary:NO];
 	
 	if(self.todoList.count > indexPath.row) {
 		NSDictionary* elem = [self.todoList objectAtIndex:indexPath.row];
-		tdv.theText = [elem objectForKey:@"text"];
+		v.theText = [elem objectForKey:@"text"];
 		//tdv.theDate = [elem objectForKey:@"due"];
-		tdv.theFlags = [elem objectForKey:@"flags"];
+		v.theFlags = [elem objectForKey:@"flags"];
 		
 		NSNumber* dateNum = [elem objectForKey:@"due"];
-		tdv.time.date = [[[NSDate alloc] initWithTimeIntervalSince1970:dateNum.doubleValue / 1000] autorelease];
+		v.time.date = [[[NSDate alloc] initWithTimeIntervalSince1970:dateNum.doubleValue / 1000] autorelease];
 	}
 	
 	NSLog(@"LI:Todo: Just updated the Todo View");
 	
-	return td;
+	return cell;
 
 }
 
-/**
-- (void) plugin:(LIPlugin*) plugin loadData:(NSDictionary*) prefs{
-	[self init];
+- (void) loadDataForPlugin:(LIPlugin*) plugin{
+	NSAutoreleasePool *datapool = [[NSAutoreleasePool alloc] init];
+	preferencesPath = @"/User/Library/Preferences/cx.ath.jakewalk.TodoPlugin.plist";
+	preferences = [[NSMutableDictionary alloc] initWithContentsOfFile:preferencesPath];
+	
+	/* Get the todo settings timestamp */  
+	NSDictionary *settingsFileAttributes = [[NSFileManager defaultManager] 
+											fileAttributesAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:todoSettingsFile]
+											traverseLink:YES];
+	
+	NSDate* lastSettingsModified = [settingsFileAttributes objectForKey:NSFileModificationDate];
+	
+	NSLog(@"LI:Todo: lastSettingsModified: %@", lastSettingsModified);  
+	NSLog(@"LI:Todo: lastSettingsCheckout: %@", lastSettingsCheckout);    
+	
+	if(lastSettingsCheckout == nil || [lastSettingsModified compare:lastSettingsCheckout] == NSOrderedDescending){
+		NSLog(@"LI:Todo: Need to update Settings and Data");
+		// Update location of DB
+		
+		//Uncomment for debugging
+		//freopen("/tmp/logfile.log", "a", stderr);
+		
+		useLiteVersion = [[preferences objectForKey: @"Lite"] boolValue];
+		
+		//Decide if the plugin points to the full or the lite version
+		if (useLiteVersion) {
+			databaseFile = @"Documents/TodoLite_v5.sqlitedb";
+			applicationName = @"Todo Lite.app";
+			todoSettingsFile = @"Library/Preferences/com.appigo.todolite.plist";    
+		}
+		else {
+			databaseFile = @"Documents/Todo_v5.sqlitedb";
+			applicationName = @"Todo.app";
+			todoSettingsFile = @"Library/Preferences/com.appigo.todo.plist";  	
+		}
+		
+		NSFileManager* fm = [NSFileManager defaultManager];
+		
+		//Path to the Todo-Application (for example /User/Applications/AC624048-1944-4019-8581-407A502E19AC/)
+		NSString* databasePath = [preferences objectForKey:@"databasePath"];
+		
+		NSLog(@"LI:Todo: databasePath: %@", databasePath);  
+		
+		if(databasePath == nil || [fm fileExistsAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:databaseFile]] == NO) {
+			NSLog(@"LI:Todo: We do not have the database path, going to search for it.");
+			
+			NSString* appPath = @"/User/Applications/";
+			NSArray* uuidDirs = [fm directoryContentsAtPath:appPath];
+			NSEnumerator *e = [uuidDirs objectEnumerator];
+			bool cont = true;
+			NSString* uuid = nil;
+			while(cont && (uuid = [e nextObject])) {
+				if([[fm directoryContentsAtPath:[appPath stringByAppendingString:uuid]] containsObject:applicationName]) {
+					[preferences setObject:[NSString stringWithFormat:@"/User/Applications/%@/", uuid] forKey:@"databasePath"];
+					[preferences writeToFile:preferencesPath atomically:YES];
+					cont = false;
+					NSLog(@"LI:Todo: Found the path: %@", [preferences objectForKey:@"databasePath"]);
+				}
+			}	
+		}
+		
+		NSLog(@"LI:Todo: path: %@", [preferences objectForKey:@"databasePath"]);
+		
+		queryLimit = [[preferences valueForKey:@"Limit"] intValue];
+		@try {
+			[self CreateSQLQueries];
+		}
+		@catch (NSException * e) {
+			NSLog(@"LI:Todo: Could not complete querie");
+		}
+		
+		// Set lastDataCheckout to nil to force update
+		lastDataCheckout = nil;
+		if(lastSettingsCheckout != nil)
+			[lastSettingsCheckout release];
+		lastSettingsCheckout = [lastSettingsModified retain];
+	}
+	
+	/* Get the todo database timestamp */
+	NSDictionary *dataFileAttributes = [[NSFileManager defaultManager] 
+										fileAttributesAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:databaseFile]
+										traverseLink:YES];
+	
+	NSDate* lastDataModified = [dataFileAttributes objectForKey:NSFileModificationDate];
+	
+	NSLog(@"LI:Todo: lastDataModified: %@", lastDataModified);  
+	NSLog(@"LI:Todo: lastDataCheckout: %@", lastDataCheckout);  
+	
+	
+	
+	if(lastDataCheckout == nil || lastData == nil || [lastDataModified compare:lastDataCheckout] == NSOrderedDescending)  {
+		NSLog(@"LI:Todo: Need to update Data");
+		// Update data and read from database
+		NSMutableArray *todos = [NSMutableArray arrayWithCapacity:4];
+		
+		sqlite3 *database = NULL;
+		
+		if(sqlite3_open([[[preferences objectForKey:@"databasePath"] stringByAppendingString:databaseFile] UTF8String], &database) == SQLITE_OK) {
+			
+			/*
+			 NSString *sql = [NSString stringWithFormat:@"%@ limit %i;",
+			 todaySql,
+			 [[preferences valueForKey:@"Limit"] intValue]];
+			 */
+			
+			NSString *sql = [NSString stringWithFormat:@"%@ order by due_date ASC limit %i", 
+							 [sqlDict objectForKey: [preferences objectForKey:@"List"]], 
+							 queryLimit];
+			
+			// Setup the SQL Statement and compile it for faster access
+			sqlite3_stmt *compiledStatement;
+			if(sqlite3_prepare_v2(database, [sql UTF8String], -1, &compiledStatement, NULL) == SQLITE_OK) {
+				NSLog(@"LI:Todo: Database checkout worked!");
+				
+				// Loop through the results and add them to the feeds array
+				while(sqlite3_step(compiledStatement) == SQLITE_ROW) {
+					const char *cText = sqlite3_column_text(compiledStatement, 0);
+					if(cText == NULL)
+						cText = "";
+					
+					const char *cDue  = sqlite3_column_text(compiledStatement, 1);
+					if(cDue == NULL)
+						cDue = "";
+					
+					const char *cFlags  = sqlite3_column_text(compiledStatement, 2);
+					if(cFlags == NULL)
+						cFlags = "";		  
+					
+					NSString *aText = [NSString stringWithUTF8String:cText];
+					NSString *aDue = [NSString stringWithUTF8String:cDue];
+					NSString *aFlags = [NSString stringWithUTF8String:cFlags];
+					
+					NSDictionary *todoDict = [NSDictionary dictionaryWithObjectsAndKeys:
+											  aText, @"text",
+											  aDue, @"due",
+											  aFlags, @"flags",											   
+											  nil];
+					
+					[todos addObject:todoDict];
+				}
+				
+			}
+			// Release the compiled statement from memory
+			sqlite3_finalize(compiledStatement);
+		}
+		
+		sqlite3_close(database);
+		
+		NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithCapacity:1];
+		
+		[dict setObject:todos forKey:@"todos"];  
+		[dict setObject:preferences forKey:@"preferences"];
+		//[dict retain];
+		
+		//[pool drain];
+		
+		NSLog(@"LI:Todo: Successfully read from database.");
+		
+		@synchronized (plugin.lock) {
+			self.todoList = todos;
+		}
+		// Inside on SMS and outside on Weather Info.  This is likely location of SB crash
+		//[plugin updateView:dict];
+		
+		if(lastData != nil)
+			[lastData release];
+		lastData = [dict retain];
+		
+		if(lastDataCheckout != nil)
+			[lastDataCheckout release];
+		lastDataCheckout = [lastDataModified retain];
+		
+		NSLog(@"LI:Todo: Succesfully got new data");
+	}else {
+		NSLog(@"LI:Todo: No update necessary");
+	}
+	
+	[datapool drain];
+	
 	
 
 
 }
-**/
 
 - (void) CreateSQLQueries {
 	
@@ -309,164 +397,5 @@
   [super dealloc];
 }
 
-- (NSDictionary*) readFromDatabase {
-  //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
-  NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:1];
-  NSMutableArray *todos = [NSMutableArray arrayWithCapacity:4];
-
-  sqlite3 *database = NULL;
-
-  if(sqlite3_open([[[preferences objectForKey:@"databasePath"] stringByAppendingString:databaseFile] UTF8String], &database) == SQLITE_OK) {
-
-	/*
-	  NSString *sql = [NSString stringWithFormat:@"%@ limit %i;",
-	  todaySql,
-	  [[preferences valueForKey:@"Limit"] intValue]];
-	*/
-
-	NSString *sql = [NSString stringWithFormat:@"%@ order by due_date ASC limit %i", 
-							  [sqlDict objectForKey: [preferences objectForKey:@"List"]], 
-							  queryLimit];
-
-	// Setup the SQL Statement and compile it for faster access
-	sqlite3_stmt *compiledStatement;
-	if(sqlite3_prepare_v2(database, [sql UTF8String], -1, &compiledStatement, NULL) == SQLITE_OK) {
-	  NSLog(@"LI:Todo: Database checkout worked!");
-
-	  // Loop through the results and add them to the feeds array
-	  while(sqlite3_step(compiledStatement) == SQLITE_ROW) {
-		const char *cText = sqlite3_column_text(compiledStatement, 0);
-		if(cText == NULL)
-		  cText = "";
-
-		const char *cDue  = sqlite3_column_text(compiledStatement, 1);
-		if(cDue == NULL)
-		  cDue = "";
-		  
-		const char *cFlags  = sqlite3_column_text(compiledStatement, 2);
-		if(cFlags == NULL)
-		  cFlags = "";		  
-		
-		NSString *aText = [NSString stringWithUTF8String:cText];
-		NSString *aDue = [NSString stringWithUTF8String:cDue];
-		NSString *aFlags = [NSString stringWithUTF8String:cFlags];
-
-		NSDictionary *todoDict = [NSDictionary dictionaryWithObjectsAndKeys:
-												 aText, @"text",
-											   aDue, @"due",
-											   aFlags, @"flags",											   
-											   nil];
-		
-		[todos addObject:todoDict];
-	  }
-	  
-	}
-	// Release the compiled statement from memory
-	sqlite3_finalize(compiledStatement);
-  }
-
-  sqlite3_close(database);
-
-  [dict setObject:todos forKey:@"todos"];  
-  [dict setObject:preferences forKey:@"preferences"];
-  //[dict retain];
-  
-  //[pool drain];
-
-  NSLog(@"LI:Todo: Successfully read from database.");
-  
-  //@synchronized (plugin.lock) {
-  	self.todoList = todos;
-  	//[plugin updateView:dict];
-  //}
-
-  return dict;
-}
-
-- (NSDictionary*) data {
-  NSAutoreleasePool *datapool = [[NSAutoreleasePool alloc] init];
-
-  /* Get the todo database timestamp */
-  NSDictionary *dataFileAttributes = [[NSFileManager defaultManager] 
-								   fileAttributesAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:databaseFile]
-								   traverseLink:YES];
-
-  NSDate* lastDataModified = [dataFileAttributes objectForKey:NSFileModificationDate];
-
-  NSLog(@"LI:Todo: lastDataModified: %@", lastDataModified);  
-  NSLog(@"LI:Todo: lastDataCheckout: %@", lastDataCheckout);  
-
-  /* Get the todo settings timestamp */  
-  NSDictionary *settingsFileAttributes = [[NSFileManager defaultManager] 
-								   fileAttributesAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:todoSettingsFile]
-								   traverseLink:YES];
-
-  NSDate* lastSettingsModified = [settingsFileAttributes objectForKey:NSFileModificationDate];
-
-  NSLog(@"LI:Todo: lastSettingsModified: %@", lastSettingsModified);  
-  NSLog(@"LI:Todo: lastSettingsCheckout: %@", lastSettingsCheckout);    
-
-  if(lastDataCheckout == nil || lastSettingsCheckout == nil || lastData == nil ||
-	 [lastDataModified compare:lastDataCheckout] == NSOrderedDescending ||
-	 [lastSettingsModified compare:lastSettingsCheckout] == NSOrderedDescending) {
-	NSLog(@"LI:Todo: We don't have the last time, data or todo-settings -> updating");
-	
-	if([lastSettingsModified compare:lastSettingsCheckout] == NSOrderedDescending){
-		[self CreateSQLQueries];
-	}
-
-	NSDictionary* dict = [self readFromDatabase];	
-
-	if(lastData != nil)
-	  [lastData release];
-	lastData = [dict retain];
-
-	if(lastDataCheckout != nil)
-	  [lastDataCheckout release];
-	lastDataCheckout = [lastDataModified retain];
-
-	if(lastSettingsCheckout != nil)
-	  [lastSettingsCheckout release];
-	lastSettingsCheckout = [lastSettingsModified retain];
-
-	NSLog(@"LI:Todo: Succesfully got new data");
-	
-
-	
-  } else {
-	NSLog(@"LI:Todo: No update necessary");
-  }
-  
-  [datapool drain];
-  
-  return lastData;
-}
-
-- (void) setPreferences:(NSDictionary*) prefs {
-  [preferences release];
-  preferences = [prefs retain];
-
-  queryLimit = [[preferences valueForKey:@"Limit"] intValue];
-
-  //Force an update of the data
-  if(lastData != nil) {
-	[lastData release];
-	lastData = nil;
-  }
-
-  NSLog(@"LI:Todo: PreferencesChanged");
-}
 
 @end
-
-int main() {
-  /*
-  //  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
-  TodoPlugin* p = [[TodoPlugin alloc] init];
-  GSLog(@"%@", [p data]);
-
-  //  [pool release];
-  */
-}
