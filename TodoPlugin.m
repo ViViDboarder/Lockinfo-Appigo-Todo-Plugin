@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+/** Might not be needed for new API
 @protocol PluginDelegate <NSObject>
 
 // This data dictionary will be converted into JSON by the extension.  This method will get called
@@ -18,18 +19,45 @@
 - (void) setPreferences:(NSDictionary*) prefs;
 
 @end
+**/
 
 @interface TodoView : UIView
 
-@property (nonatomic, retain) NSArray* todos;
+@property (nonatomic, retain) LITimeView* time;
+@property (nonatomic, retain) UILabel* theText;
+@property (nonatomic, retain) UILabel* theFlags;
+@property (nonatomic, retain) UILabel* theDate;
 
 @end
 
 @implementation TodoView
 
-@synthesize todos;
+@synthesize time, theText, theFlags, theDate;
 
--(void) drawRect:(struct CGRect) rect {
+- (id)initWithFrame:(CGRect)frame timeView:(LITimeView*) timeView {
+	self = [super initWithFrame:frame];
+	self.backgroundColor = [UIColor clearColor];
+	
+	self.time = timeView;
+	self.time.frame = CGRectMake(0, 0, 70, 18);
+	self.time.backgroundColor = [UIColor clearColor];
+	
+    self.theText = [[UILabel alloc]init];
+    self.theText.frame = CGRectMake(85, 0, 225, 18);
+    self.theText.backgroundColor = [UIColor clearColor];
+
+    self.theFlags = [[UILabel alloc]init];
+    self.theFlags.frame = CGRectMake(85, 17, 225, 13);
+    self.theFlags.backgroundColor = [UIColor clearColor];
+
+    [self addSubview:self.time];
+    [self addSubview:self.theText];
+    [self addSubview:self.theFlags];
+
+    return self;
+}
+/** Commented out as reference
+ -(void) drawRect:(struct CGRect) rect {
 	NSLog(@"LI:Todo: Rendering Items...");
 	int width = (rect.size.width / 1);
 	
@@ -45,32 +73,12 @@
 		[str drawInRect:r withFont:[UIFont boldSystemFontOfSize:12] lineBreakMode:UILineBreakModeClip ];
 	}
 }
+**/
 
 @end
 
-@interface HeaderView : UIView
 
-@end
-
-@implementation HeaderView
-
--(void) drawRect:(struct CGRect) rect {
-	NSLog(@"LI:Todo: Drawing header");
-	
-	//double scale = 1.0;
-	
-	// Get icon path and icon
-	// icon should be self.icon
-	//CGSize s = self.icon.size;
-	//s.width = s.width * scale;
-	//s.height = s.height * scale;
-	//[self.icon drawInRect:CGRectMake((rect.size.height / 2) - (s.width / 2), (rect.size.height / 2) - (s.height / 2), s.width, s.height)];
-
-}
-
-@end
-
-@interface TodoPlugin : NSObject <PluginDelegate> {
+@interface TodoPlugin : NSObject <LIPluginDelegate, UITableViewDataSource> {
   //The date when the todos where read the last time
   NSDate *lastDataCheckout;
   //The date when the todo settings where read the last time (necessary for focus list)
@@ -91,10 +99,14 @@
   NSAutoreleasePool* pool;
 }
 
+@property (nonatomic, retain) NSArray* todoList;
+
 - (NSDictionary*) data;
 @end
 
 @implementation TodoPlugin
+
+@synthesize todoList;
 
 - (id)init {
   self = [super init];
@@ -134,7 +146,7 @@
   NSLog(@"LI:Todo: databasePath: %@", databasePath);  
   
   if(databasePath == nil || [fm fileExistsAtPath:[[preferences objectForKey:@"databasePath"] stringByAppendingString:databaseFile]] == NO) {
-	GSLog(@"We do not have the database path, going to search for it.");
+	NSLog(@"LI:Todo: We do not have the database path, going to search for it.");
 
 	NSString* appPath = @"/User/Applications/";
 	NSArray* uuidDirs = [fm directoryContentsAtPath:appPath];
@@ -151,7 +163,7 @@
 	}	
   }
 
-  GSLog(@"path: %@", [preferences objectForKey:@"databasePath"]);
+  NSLog(@"LI:Todo: path: %@", [preferences objectForKey:@"databasePath"]);
 
   [self CreateSQLQueries];
 
@@ -163,25 +175,12 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	return 1;
+	return self.todoList.count;
 }
 
-//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-//		
-//}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-	NSArray* todoCount = [lastData objectForKey:@"todos"];
-	// sets total shaded background to the height of all items
-	int width = 16 * todoCount.count;
-	// Possible memory leak... Check into this.
-	//[todoCount release];
-	return width;
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *)tableView:(LITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
-	NSArray* todos = [lastData objectForKey:@"todos"];
+	//NSArray* todos = [lastData objectForKey:@"todos"];
 	
 	UITableViewCell *td = [tableView dequeueReusableCellWithIdentifier:@"TodoCell"];
 	
@@ -189,22 +188,40 @@
 		td = [[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"TodoCell"];
 		td.backgroundColor = [UIColor clearColor];
 		
-		TodoView* tdv = [[[TodoView alloc] initWithFrame:CGRectMake(10, 0, 300, 16 * todos.count)] autorelease];
+		TodoView* tdv = [[[TodoView alloc] initWithFrame:CGRectMake(0, 0, 320, 35) timeView:[tableView timeViewWithFrame:CGRectZero]] autorelease];
 		tdv.backgroundColor = [UIColor clearColor];
 		tdv.tag = 57;
 		[td.contentView addSubview:tdv];
 	}
-	TodoView* tdv = [td viewWithTag:57];
-	NSArray* todosCopy = [todos copy];
-	tdv.todos = todosCopy;
-	[todosCopy release];
-	NSLog(@"LI:Todo: Just updated the Todo View");
 	
-	//tdv.todos = todos;
+	TodoView* tdv = [td viewWithTag:57];
+	[tableView setProperties:tdv.theText summary:YES];
+	[tableView setProperties:tdv.theFlags summary:NO];
+	
+	if(self.todoList.count > indexPath.row) {
+		NSDictionary* elem = [self.todoList objectAtIndex:indexPath.row];
+		tdv.theText = [elem objectForKey:@"text"];
+		//tdv.theDate = [elem objectForKey:@"due"];
+		tdv.theFlags = [elem objectForKey:@"flags"];
+		
+		NSNumber* dateNum = [elem objectForKey:@"due"];
+		tdv.time.date = [[[NSDate alloc] initWithTimeIntervalSince1970:dateNum.doubleValue / 1000] autorelease];
+	}
+	
+	NSLog(@"LI:Todo: Just updated the Todo View");
 	
 	return td;
 
 }
+
+/**
+- (void) plugin:(LIPlugin*) plugin loadData:(NSDictionary*) prefs{
+	[self init];
+	
+
+
+}
+**/
 
 - (void) CreateSQLQueries {
 	
@@ -358,6 +375,11 @@
   //[pool drain];
 
   NSLog(@"LI:Todo: Successfully read from database.");
+  
+  //@synchronized (plugin.lock) {
+  	self.todoList = todos;
+  	//[plugin updateView:dict];
+  //}
 
   return dict;
 }

@@ -4,12 +4,20 @@
 #include <UIKit/UITableView.h>
 #include <UIKit/UIView.h>
 #include <UIKit/UILabel.h>
+@interface LIPlugin : NSObject
+
+- (NSString*) bundleIdentifier;
+- (id) lock;
+- (NSDictionary*) preferences;
+- (void) updateView:(NSDictionary*) data;
+
+@end
 
 @interface LITimeView : UIView
 {
-	BOOL is24Hour;
-	NSDate* date;
-	NSString* text;
+        BOOL is24Hour;
+        NSDate* date;
+        NSString* text;
 }
 
 @property (nonatomic) BOOL relative;
@@ -40,20 +48,22 @@
 -(BOOL) isCollapsed:(int) section;
 -(BOOL) toggleSection:(int) section;
 
+-(void) reloadPlugin:(LIPlugin*) plugin;
+
 -(void) setProperties:(UILabel*) label summary:(BOOL) summary;
 -(LITimeView*) timeViewWithFrame:(CGRect) frame;
 
 @end
 
-@interface LIPlugin : NSObject
+@protocol LITableViewDataSource <UITableViewDataSource>
 
-- (id) lock;
-- (void) updateView:(NSDictionary*) data;
+@optional
+-(UIImage*) tableView:(LITableView*) tableView iconForHeaderInSection:(NSInteger) section;
 
 @end
 
-@protocol LIPluginDataSource <NSObject>
+@protocol LIPluginDelegate <NSObject>
 
--(void) plugin:(LIPlugin*) plugin loadData:(NSDictionary*) prefs;
+-(void) loadDataForPlugin:(LIPlugin*) plugin;
 
 @end

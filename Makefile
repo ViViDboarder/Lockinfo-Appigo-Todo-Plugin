@@ -59,7 +59,7 @@ BUNDLE=TodoPlugin.bundle
 THEME=TodoLockInfo.theme
 ID=cx.ath.the-kenny.TodoPlugin
 
-IP=192.168.2.111
+IP=192.168.1.3
 
 TodoPlugin: TodoPlugin.o
 	$(LD) $(LDFLAGS) -o TodoPlugin TodoPlugin.o
@@ -84,7 +84,7 @@ install: TodoPlugin $(BUNDLE) $(THEME)
 
 	cp plugin.js $(THEME)/Bundles/$(ID)/
 	cp plugin.css $(THEME)/Bundles/$(ID)/
-	cp things.png $(THEME)/Bundles/$(ID)/
+	cp icon.png $(THEME)/Bundles/$(ID)/
 
 deviceinstall: install
 	scp -r $(BUNDLE) root@$(IP):/Library/LockInfo/Plugins/
