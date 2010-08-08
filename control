@@ -1,0 +1,12 @@
+Package: com.vividboarder.lockinfotodo
+Name: Appigo Todo Plugin for LockInfo (Native)
+Version: 1.5.5
+Architecture: iphoneos-arm
+Description: Adds a native plugin for Appigo Todo tasks to your LockInfo screen.
+Homepage: http://code.google.com/p/appigo-lockinfo-todo/
+Depiction: http://modmyi.com/info/lockinfotodo.d.php
+Maintainer: poetic_folly <poetic_folly@modmyi.com>
+Author: Ian (ViViDboarder) <ViViDboarder@gmail.com>, David Ashman (Stimpy5050) <dashman@gmail.com>
+Sponsor: ModMyi.com <http://modmyi.com/forums/index.php?styleid=31>
+Section: LockInfo Addons
+Pre-Depends: com.ashman.lockinfo (>= 1.1.6)
