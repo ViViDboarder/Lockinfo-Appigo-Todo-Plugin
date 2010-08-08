@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Please help support my plugin. NOTE: This is not for the creator of LockInfo.</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>bundle</key>
+			<string>WebViewController</string>
+			<key>isController</key>
+			<true/>
+			<key>label</key>
+			<string>Donate via Pledgie</string>
+			<key>URL</key>
+			<string>http://pledgie.com/campaigns/9145</string>
+			<key>embed</key>
+			<false/>
+	   </dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<string>YES</string>
+			<key>defaults</key>
+			<string>com.vividboarder.lockinfo.TodoPlugin</string>
+			<key>key</key>
+			<string>Enabled</string>
+			<key>label</key>
+			<string>Enabled</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Features</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<string>YES</string>
+			<key>defaults</key>
+			<string>com.vividboarder.lockinfo.TodoPlugin</string>
+			<key>key</key>
+			<string>allowPreviews</string>
+			<key>label</key>
+			<string>Show Item Previews</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<string>YES</string>
+			<key>defaults</key>
+			<string>com.vividboarder.lockinfo.TodoPlugin</string>
+			<key>key</key>
+			<string>ShowPriority</string>
+			<key>label</key>
+			<string>Show Priority</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkListCell</string>
+			<key>default</key>
+			<string>None</string>
+			<key>defaults</key>
+			<string>com.vividboarder.lockinfo.TodoPlugin</string>
+			<key>detail</key>
+			<string>PSListItemsController</string>
+			<key>key</key>
+			<string>OverdueColor</string>
+			<key>label</key>
+			<string>Overdue Color</string>
+			<key>validTitles</key>
+			<array>
+				<string>None</string>
+				<string>Red</string>
+				<string>Blue</string>
+				<string>Green</string>
+				<string>Yellow</string>
+				<string>Orange</string>
+			</array>
+			<key>validValues</key>
+			<array>
+				<string>0</string>
+				<string>1</string>
+				<string>2</string>
+				<string>3</string>
+				<string>4</string>
+				<string>5</string>
+			</array>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<string>YES</string>
+			<key>defaults</key>
+			<string>com.vividboarder.lockinfo.TodoPlugin</string>
+			<key>key</key>
+			<string>ShowDate</string>
+			<key>label</key>
+			<string>Show Date</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Lists and Projects</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<string>NO</string>
+			<key>defaults</key>
+			<string>com.vividboarder.lockinfo.TodoPlugin</string>
+			<key>key</key>
+			<string>hideProjects</string>
+			<key>label</key>
+			<string>Hide Proj or List</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<string>NO</string>
+			<key>defaults</key>
+			<string>com.vividboarder.lockinfo.TodoPlugin</string>
+			<key>key</key>
+			<string>hideSubItems</string>
+			<key>label</key>
+			<string>Hide List Subitems</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Filters</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<string>NO</string>
+			<key>defaults</key>
+			<string>com.vividboarder.lockinfo.TodoPlugin</string>
+			<key>key</key>
+			<string>HideUnfiled</string>
+			<key>label</key>
+			<string>Hide Unfiled Tasks</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<string>NO</string>
+			<key>defaults</key>
+			<string>com.vividboarder.lockinfo.TodoPlugin</string>
+			<key>key</key>
+			<string>showStarredOnly</string>
+			<key>label</key>
+			<string>Only Starred</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<string>NO</string>
+			<key>defaults</key>
+			<string>com.vividboarder.lockinfo.TodoPlugin</string>
+			<key>key</key>
+			<string>showLockscreenOnly</string>
+			<key>label</key>
+			<string>Only Taged Lockscreen</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<string>NO</string>
+			<key>defaults</key>
+			<string>com.vividboarder.lockinfo.TodoPlugin</string>
+			<key>key</key>
+			<string>HideNoDate</string>
+			<key>label</key>
+			<string>Hide Undated Tasks</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkListCell</string>
+			<key>default</key>
+			<string>5</string>
+			<key>defaults</key>
+			<string>com.vividboarder.lockinfo.TodoPlugin</string>
+			<key>detail</key>
+			<string>PSListItemsController</string>
+			<key>key</key>
+			<string>MaxTasks</string>
+			<key>label</key>
+			<string>Max Tasks Shown</string>
+			<key>validTitles</key>
+			<array>
+				<string>1</string>
+				<string>2</string>
+				<string>3</string>
+				<string>4</string>
+				<string>5</string>
+				<string>10</string>
+				<string>15</string>
+				<string>20</string>
+			</array>
+			<key>validValues</key>
+			<array>
+				<string>1</string>
+				<string>2</string>
+				<string>3</string>
+				<string>4</string>
+				<string>5</string>
+				<string>10</string>
+				<string>15</string>
+				<string>20</string>
+			</array>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<string>YES</string>
+			<key>defaults</key>
+			<string>com.vividboarder.lockinfo.TodoPlugin</string>
+			<key>key</key>
+			<string>dayLimit</string>
+			<key>label</key>
+			<string>Limit Max Days</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkListCell</string>
+			<key>default</key>
+			<string>7</string>
+			<key>defaults</key>
+			<string>com.vividboarder.lockinfo.TodoPlugin</string>
+			<key>detail</key>
+			<string>PSListItemsController</string>
+			<key>key</key>
+			<string>maxDays</string>
+			<key>label</key>
+			<string>Max Days Shown</string>
+			<key>validTitles</key>
+			<array>
+				<string>Today Only</string>
+				<string>1 Day</string>
+				<string>2 Days</string>
+				<string>3 Days</string>
+				<string>1 Week</string>
+				<string>2 Weeks</string>
+				<string>1 Month</string>
+				<string>3 Months</string>
+				<string>6 Months</string>
+				<string>1 Year</string>
+			</array>
+			<key>validValues</key>
+			<array>
+				<string>0</string>
+				<string>1</string>
+				<string>2</string>
+				<string>3</string>
+				<string>7</string>
+				<string>14</string>
+				<string>30</string>
+				<string>89</string>
+				<string>182</string>
+				<string>365</string>
+			</array>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Advanced</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<string>NO</string>
+			<key>defaults</key>
+			<string>com.vividboarder.lockinfo.TodoPlugin</string>
+			<key>key</key>
+			<string>OverrideSQL</string>
+			<key>label</key>
+			<string>Override SQL</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>Warning: This will load SQL from the SQL.txt file in the plugin root.  If you don't know what you are doing, do not use this option.  Also note that this will ignore all other filters that you have in place.</string>
+		</dict>
+	</array>
+	<key>title</key>
+	<string>Todo</string>
+</dict>
+</plist>

@@ -1,0 +1,1 @@
+select tasks.name, tasks.due_date, tasks.priority, lists.color, tasks.note, tasks.pk, tasks.flags, tasks.type from tasks left outer join lists on lists.pk = tasks.list where tasks.completion_date < 0 and tasks.deleted = 0
